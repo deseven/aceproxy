@@ -109,6 +109,9 @@ class VlcClient(object):
             raise VlcException("Vlc Write error! ERROR: " + repr(e))
 
     def _broadcast(self, brtype, stream_name, input=None, muxer='ts', pre_access=''):
+        if self._shuttingDown.isSet():
+            return
+
         # Start/stop broadcast with VLC
         # Logger
         if brtype == True:
@@ -150,6 +153,12 @@ class VlcClient(object):
 
     def stopBroadcast(self, stream_name):
         return self._broadcast(False, stream_name)
+
+    def pauseBroadcast(self, stream_name):
+        return self._write(VlcMessage.request.pauseBroadcast(stream_name))
+
+    def playBroadcast(self, stream_name):
+        return self._write(VlcMessage.request.playBroadcast(stream_name))
 
     def _recvData(self):
         # Logger

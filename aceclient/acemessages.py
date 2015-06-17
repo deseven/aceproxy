@@ -39,21 +39,18 @@ class AceMessage(object):
 
     class request(object):
         # Requests (from client to acestream)
-       # API Version
+        # API Version
         HELLO = 'HELLOBG version=' + str(AceConst.APIVERSION)  # Hello
         READY_nokey = 'READY'  # Sent when ready
+        PAUSE = 'EVENT pause'
+        PLAY = 'EVENT play'
         STOP = 'STOP'
         SHUTDOWN = 'SHUTDOWN'
 
         @staticmethod
-        def READY_key(request_key, product_key, timeout=10):
-            if product_key:
-                # If product_key is set, use it
-                return 'READY key=' + product_key.split('-')[0] + '-' + \
-                    hashlib.sha1(request_key + product_key).hexdigest()
-            else:
-                # Use site with key generator
-                return 'READY key=' + urllib2.urlopen("http://valdikss.org.ru/tv/key.php?key=" + request_key, timeout=timeout).read()
+        def READY_key(request_key, product_key):
+            return 'READY key=' + product_key.split('-')[0] + '-' + \
+                hashlib.sha1(request_key + product_key).hexdigest()
         # End READY_KEY
 
         @staticmethod
@@ -130,6 +127,10 @@ class AceMessage(object):
         def USERDATA(gender, age):
             return 'USERDATA [{"gender": ' + str(gender) + '}, {"age": ' + str(age) + '}]'
 
+        @staticmethod
+        def SEEK(timestamp):
+            return 'LIVESEEK ' + str(timestamp)
+
     class response(object):
         # Responses (from acestream to client)
         HELLO = 'HELLOTS'  # Just the beginning
@@ -139,6 +140,7 @@ class AceMessage(object):
         SHUTDOWN = 'SHUTDOWN'
         AUTH = 'AUTH'
         GETUSERDATA = 'EVENT getuserdata'
+        LIVEPOS = 'EVENT livepos'
         STATE = 'STATE'
         STATUS = 'STATUS'
         PAUSE = 'PAUSE'

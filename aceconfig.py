@@ -1,37 +1,44 @@
 '''
 AceProxy configuration script
+Edit this file.
 '''
+
 import logging
-import platform
+import acedefconfig
 from aceclient.acemessages import AceConst
 
 
-class AceConfig(object):
+class AceConfig(acedefconfig.AceDefConfig):
     # ----------------------------------------------------
     # Ace Stream Engine configuration
     # ----------------------------------------------------
     #
     # Spawn Ace Stream Engine automatically
-    # Need gevent 1.0.0 or higher
-    acespawn = True
+    acespawn = False
     # Ace Stream cmd line (use `--log-file filepath` to write log)
     # Autodetect for Windows
     acecmd = "acestreamengine --client-console"
-    # Ace Stream API key (None uses remote key generator)
+    # Ace Stream API key
     # You probably shouldn't touch this
-    acekey = None
+    acekey = 'n51LvQoTlJzNGaFxseRK-uvnvX-sD4Vm5Axwmc4UcoD-jruxmKsuJaH0eVgE'
     # Ace Stream Engine host
     # Change this if you use remote Ace Stream Engine
     # Remember that by default Ace Stream Engine listens only
     # Local host, so start it with --bind-all parameter
     acehost = '127.0.0.1'
-    # Ace Stream Engine port (autodetect for Windows if acespawn = True)
+    # Ace Stream Engine port (autodetect for Windows)
     aceport = 62062
     # Ace Stream age parameter (LT_13, 13_17, 18_24, 25_34, 35_44, 45_54,
     # 55_64, GT_65)
     aceage = AceConst.AGE_18_24
     # Ace Stream sex parameter (MALE or FEMALE)
     acesex = AceConst.SEX_MALE
+    # Ace Stream Engine startup timeout
+    # On Windows Ace Engine refreshes acestream.port file only after loading GUI
+    # Loading takes about ~10 seconds and we need to wait before taking port out of it
+    # Set this to 0 if you don't use proxy at startup or don't need to wait
+    # Only applies to Windows systems
+    acestartuptimeout = 10
     # Ace Stream Engine connection timeout
     aceconntimeout = 5
     # Ace Stream Engine authentication result timeout
@@ -66,6 +73,11 @@ class AceConfig(object):
     loggingtoafile = False
     # Path for logs, default is current directory. For example '/tmp/'
     logpath = ''
+    #
+    # ----------------------------------------------------
+    # VLC configuration
+    # ----------------------------------------------------
+    #
     # Use VideoLAN VLC Media Player
     # I strongly recommend to use VLC, because it lags a lot without it
     # And multiple clients can't watch one stream without it.
@@ -74,12 +86,22 @@ class AceConfig(object):
     # And run it with:
     # vlc -I telnet --clock-jitter 0 --network-caching 500 --telnet-pass admin
     vlcuse = False
+    # Use AceStream player that comes with engine
+    # If true than proxy will detect a path to ace_player.exe and ace_player.exe will be spawned
+    # It also will not check if vlc.exe is running, it will watch over ace_player.exe process
+    # This option applies only for Windows systems
+    # If set to true, you need to edit vlccmd like this:
+    # ace_player.exe -I telnet --clock-jitter -1 --network-caching -1 --sout-mux-caching 2000 --telnet-password admin
+    # to point ace_player.exe, not vlc.exe!!!
+    vlcuseaceplayer = False
     # Spawn VLC automaticaly
-    # Need gevent 1.0.0 or higher
     vlcspawn = False
     # VLC cmd line (use `--file-logging --logfile=filepath` to write log)
     # Please use the full path to executable for Windows, for example - C:\\Program Files\\VideoLAN\\VLC\\vlc.exe
-    vlccmd = "vlc -I telnet --clock-jitter 0 --network-caching 500 --sout-mux-caching 500 --telnet-password admin --telnet-port 4212"
+    vlccmd = "vlc -I telnet --clock-jitter -1 --network-caching -1 --sout-mux-caching 2000 --telnet-password admin --telnet-port 4212"
+    # VLC spawn timeout
+    # Adjust this if you get error 'Cannot spawn VLC!'
+    vlcspawntimeout = 5
     # VLC host
     vlchost = '127.0.0.1'
     # VLC telnet interface port
@@ -117,7 +139,14 @@ class AceConfig(object):
     # !!!
     # PLEASE set this to 0 if you use VLC
     # !!!
-    videopausedelay = 3
+    videopausedelay = 2
+    # Seek back feature.
+    # Seeks stream back for specified amount of seconds.
+    # Greatly helps fighing AceSteam lags, but introduces
+    # video stream delay.
+    # Set it to 30 or so.
+    # Works only with the newest versions of AceEngine!
+    videoseekback = 0
     # Delay before closing Ace Stream connection when client disconnects
     # In seconds.
     videodestroydelay = 3
@@ -136,5 +165,3 @@ class AceConfig(object):
     fakeheaderuas = ('HLS Client/2.0 (compatible; LG NetCast.TV-2012)',
                      'Mozilla/5.0 (DirectFB; Linux armv7l) AppleWebKit/534.26+ (KHTML, like Gecko) Version/5.0 Safari/534.26+ LG Browser/5.00.00(+mouse+3D+SCREEN+TUNER; LGE; 42LM670T-ZA; 04.41.03; 0x00000001;); LG NetCast.TV-2012 0'
                      )
-    # Platform detection, you probably should not touch this
-    osplatform = platform.system()
